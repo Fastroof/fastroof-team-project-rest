@@ -7,17 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class RestApiController {
-    @RequestMapping("hello")
-    public String helloWorld(@RequestParam(value="name", defaultValue="World") String name) {
-        return "Hello "+name+"!!";
-    }
 
-    @RequestMapping("bighello")
-    public String bigHelloWorld(@RequestParam(value="name", defaultValue="WORLD") String name) {
-        return "HELLO "+name+"!!";
-    }
-
-    @RequestMapping("userFunction")
+    @RequestMapping("/userFunction")
     public String userFunction() {
         if (SecurityContextHolder.getContext().getAuthentication().getAuthorities().toArray()[0].toString().equals("ROLE_USER")){
             return "You are a user!";
