@@ -26,7 +26,7 @@ public class AuthController {
         model.addAttribute("messnum", 0);
         model.addAttribute("msg", "Ви успішно увішли в акаунт!");
         model.addAttribute("link", "/");
-        model.addAttribute("text", "Натисніть, щоб продовжити ->");
+        model.addAttribute("text", "Натисніть, щоб продовжити ➜");
         return "info";
     }
 
@@ -42,7 +42,7 @@ public class AuthController {
             model.addAttribute("messnum", 1);
             model.addAttribute("msg", String.format("Користувач з email %s вже зареєстрований.", request.getEmail()));
             model.addAttribute("link", "/registration");
-            model.addAttribute("text", "Натисніть, щоб спробувати ще раз ->");
+            model.addAttribute("text", "Натисніть, щоб спробувати ще раз ➜");
         } else {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String encodedPassword = passwordEncoder.encode(request.getPassword());
@@ -57,7 +57,7 @@ public class AuthController {
             model.addAttribute("messnum", 0);
             model.addAttribute("msg", "Ви успішно зареєстровані!");
             model.addAttribute("link", "/login");
-            model.addAttribute("text", "Натисніть, щоб продовжити ->");
+            model.addAttribute("text", "Натисніть, щоб продовжити ➜");
         }
         return "info";
     }

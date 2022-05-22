@@ -12,8 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,10 +37,8 @@ public class IndexController {
 
     @GetMapping("/")
     public String showIndexPage(ModelMap model) {
-        Iterable<DataSet> dataSets = dataSetRepository.findAll();
-
         List<DataSetForIndex> dataSetsForIndex = new ArrayList<>();
-        dataSets.forEach(dataSet -> {
+        dataSetRepository.findAll().forEach(dataSet -> {
             Optional<Tag> tagOptional = tagRepository.findById(dataSet.getTagId());
             String tagName = null;
             if (tagOptional.isPresent()) {
@@ -58,8 +59,9 @@ public class IndexController {
                 }
             });
 
-            dataSetsForIndex.add(new DataSetForIndex(dataSet.getName(), tagName, ownerName, fileCount[0]));
+            dataSetsForIndex.add(new DataSetForIndex(dataSetId, dataSet.getName(), tagName, ownerName, fileCount[0]));
         });
+        Collections.reverse(dataSetsForIndex);
         model.addAttribute("dataSets", dataSetsForIndex);
         return "index";
     }

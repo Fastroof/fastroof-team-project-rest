@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class DataSetForIndex {
+    private int id;
     private String name;
     private String tagName;
     private String ownerName;

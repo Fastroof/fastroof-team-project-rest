@@ -6,8 +6,7 @@
 <head>
     <%@include file="/WEB-INF/jspf/head.jspf"%>
     <title>FTPR:Main</title>
-    <link href="<spring:url value="css/header.css"/>" rel="stylesheet">
-    <link href="<spring:url value="css/search.css"/>" rel="stylesheet">
+    <link href="<spring:url value="css/index.css"/>" rel="stylesheet">
 </head>
 <body class="bg-light">
     <header class="p-3 text-white bg-dark">
@@ -60,18 +59,11 @@
 
         <section class="py-5 text-center container">
 
-            <div class="row">
-                <div class="col-md-5 mx-auto">
-                    <div class="small fw-light">Пошук за ім'ям</div>
-                    <form class="input-group">
-                        <input class="form-control border-end-0 border rounded-pill" type="search" value="" id="example-search-input">
-                        <span class="input-group-append">
-                            <button class="btn btn-outline-secondary bg-white border-bottom-0 border rounded-pill" style="margin-left: -40px;" type="button">
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </span>
-                    </form>
-                </div>
+            <div class="input-group rounded">
+                <input id="search-input" type="search" class="form-control rounded-start" placeholder="Пошук за назвою" aria-label="Search" aria-describedby="search-addon" />
+                <button id="search-button" type="button" class="btn btn-dark">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
 
         </section>
@@ -81,7 +73,7 @@
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
 
                     <c:forEach var="dataSet" items="${dataSets}">
-                        <div class="col">
+                        <div class="col" id="data-set-${dataSet.name.replace(' ','').toLowerCase()}">
                             <div class="card shadow-sm">
                                 <div class="card-body">
                                     <p class="card-text mb-1"><c:out value="${dataSet.name}"/></p>
@@ -91,10 +83,7 @@
                                         <span class="badge bg-dark mr-2 text-wrap text-break"><c:out value="${dataSet.tagName}"/></span>&nbsp;
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-sm btn-outline-secondary">Детальніше</button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary">Редагувати</button>
-                                        </div>
+                                        <a type="button" href="/datasets/n/<c:out value="${dataSet.id}"/>" class="btn btn-sm btn-outline-secondary">Детальніше</a>
                                         <small class="text-muted d-inline-block text-truncate" style="max-width: 10em;"><c:out value="${dataSet.ownerName}"/></small>
                                     </div>
                                 </div>
@@ -107,6 +96,26 @@
         </div>
     </main>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        jQuery(function() {
+            const allDataSets = [];
+            $("div[id^='data-set-']").each(function () {
+                allDataSets.push($(this).attr('id').replace('data-set-',''));
+            });
 
+            $("#search-button").on('click', () => {
+                const value = $("#search-input").val().toLowerCase().replace(' ','');
+                allDataSets.forEach(element => {
+                    const name = '#data-set-' + element;
+                    if (element.includes(value)) {
+                        $(name).show();
+                    } else {
+                        $(name).hide();
+                    }
+                })
+            });
+        });
+    </script>
 </body>
 </html>

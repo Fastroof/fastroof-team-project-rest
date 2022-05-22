@@ -13,3 +13,7 @@
 .modal-tour .modal-dialog {
   width: 380px;
 }
+
+.btn {
+  text-transform: unset !important;
+}
