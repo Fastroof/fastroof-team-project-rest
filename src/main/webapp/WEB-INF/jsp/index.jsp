@@ -7,8 +7,9 @@
     <%@include file="/WEB-INF/jspf/head.jspf"%>
     <title>FTPR:Main</title>
     <link href="<spring:url value="css/header.css"/>" rel="stylesheet">
+    <link href="<spring:url value="css/search.css"/>" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
     <header class="p-3 text-white bg-dark">
         <div class="container">
             <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
@@ -17,8 +18,7 @@
                 </a>
 
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="/" class="nav-link px-2 text-secondary">Головна</a></li>
-                    <li><a href="/find" class="nav-link px-2 text-white">Знайти датасет</a></li>
+                    <li><a href="/" class="nav-link px-2 text-white">Головна</a></li>
                 </ul>
 
                 <sec:authorize access="isAnonymous()">
@@ -55,6 +55,58 @@
             </div>
         </div>
     </header>
+
+    <main class="bg-white">
+
+        <section class="py-5 text-center container">
+
+            <div class="row">
+                <div class="col-md-5 mx-auto">
+                    <div class="small fw-light">Пошук за ім'ям</div>
+                    <form class="input-group">
+                        <input class="form-control border-end-0 border rounded-pill" type="search" value="" id="example-search-input">
+                        <span class="input-group-append">
+                            <button class="btn btn-outline-secondary bg-white border-bottom-0 border rounded-pill" style="margin-left: -40px;" type="button">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </form>
+                </div>
+            </div>
+
+        </section>
+
+        <div class="album py-5 bg-light">
+            <div class="container">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+                    <c:forEach var="dataSet" items="${dataSets}">
+                        <div class="col">
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <p class="card-text mb-1"><c:out value="${dataSet.name}"/></p>
+                                    <p class="mb-1"><small class="text-secondary">Кількість файлів: <c:out value="${dataSet.fileCount}"/></small></p>
+                                    <div class="mb-3">
+                                        <small class="text-secondary">Тег: </small>
+                                        <span class="badge bg-dark mr-2 text-wrap text-break"><c:out value="${dataSet.tagName}"/></span>&nbsp;
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary">Детальніше</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary">Редагувати</button>
+                                        </div>
+                                        <small class="text-muted d-inline-block text-truncate" style="max-width: 10em;"><c:out value="${dataSet.ownerName}"/></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </c:forEach>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
 
 </body>
 </html>

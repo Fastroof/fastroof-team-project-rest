@@ -1,4 +1,4 @@
-package com.fastroof.ftpr.request;
+package com.fastroof.ftpr.pojo;
 
 import lombok.*;
 

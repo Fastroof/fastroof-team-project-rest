@@ -5,6 +5,7 @@
 <head>
   <%@include file="/WEB-INF/jspf/head.jspf"%>
   <title>${msg}</title>
+  <link href="<spring:url value="css/modal.css"/>" rel="stylesheet">
 </head>
 <body>
   <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -20,18 +21,32 @@
   </svg>
   <div class="container" style="align-items: center; display: flex; flex-direction: column;">
     <c:if test="${messnum == 0}">
-      <div class="alert alert-success d-flex align-items-center mt-3" role="alert">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
-        <div>
-          <p class="mb-0"><c:out value="${msg}"/></p><a href="<c:out value="${link}"/>" class="alert-link"><c:out value="${text}"/></a>
+      <div class="modal modal-alert d-block bg-secondary py-5" tabindex="-1" role="dialog" id="modalChoice">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content rounded-3 shadow">
+            <div class="alert alert-success d-flex align-items-center pt-4 pb-4 m-0 rounded-0 rounded-top">
+              <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+              <p class="mb-0"><c:out value="${msg}"/></p>
+            </div>
+            <div class="modal-footer flex-nowrap justify-content-center p-0">
+              <a href="<c:out value="${link}"/>" type="button" class="btn btn-lg btn-link fs-6 text-decoration-none m-0 rounded-0"><strong><c:out value="${text}"/></strong></a>
+            </div>
+          </div>
         </div>
       </div>
     </c:if>
     <c:if test="${messnum == 1}">
-      <div class="alert alert-warning d-flex align-items-center mt-3" role="alert">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:"><use xlink:href="#exclamation-triangle-fill"/></svg>
-        <div>
-          <p class="mb-0"><c:out value="${msg}"/></p><a href="<c:out value="${link}"/>" class="alert-link"><c:out value="${text}"/></a>
+      <div class="modal modal-alert d-block bg-secondary py-5" tabindex="-1" role="dialog" id="modalChoice">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content rounded-3 shadow">
+            <div class="alert alert-warning d-flex align-items-center pt-4 pb-4 m-0 rounded-0 rounded-top">
+              <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+              <p class="mb-0"><c:out value="${msg}"/></p>
+            </div>
+            <div class="modal-footer flex-nowrap justify-content-center p-0">
+              <a href="<c:out value="${link}"/>" type="button" class="btn btn-lg btn-link fs-6 text-decoration-none m-0 rounded-0"><strong><c:out value="${text}"/></strong></a>
+            </div>
+          </div>
         </div>
       </div>
     </c:if>
