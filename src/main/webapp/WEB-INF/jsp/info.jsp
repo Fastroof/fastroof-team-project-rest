@@ -50,6 +50,21 @@
         </div>
       </div>
     </c:if>
+    <c:if test="${messnum == 2}">
+      <div class="modal modal-alert d-block bg-secondary py-5" tabindex="-1" role="dialog" id="modalChoice">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content rounded-3 shadow">
+            <div class="alert alert-info d-flex align-items-center pt-4 pb-4 m-0 rounded-0 rounded-top">
+              <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:"><use xlink:href="#info-fill"/></svg>
+              <p class="mb-0"><c:out value="${msg}"/></p>
+            </div>
+            <div class="modal-footer flex-nowrap justify-content-center p-0">
+              <a href="<c:out value="${link}"/>" type="button" class="btn btn-lg btn-link fs-6 text-decoration-none m-0 rounded-0"><strong><c:out value="${text}"/></strong></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </c:if>
     <c:if test="${messnum == null}">
     <h3><c:out value="${msg}"/></h3>
     <h4><a href="<c:out value="${link}"/>"><c:out value="${text}"/></a></h4>
