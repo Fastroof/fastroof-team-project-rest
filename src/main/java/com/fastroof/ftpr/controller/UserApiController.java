@@ -10,6 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+
 @RestController
 public class UserApiController {
 
@@ -22,6 +24,17 @@ public class UserApiController {
     public String requestModeratorRole() {
         if (tokenHasUserRole()){
             User user = getUserByToken();
+
+            //Перевірка чи є в цього користувача вже створений, але не опрацьований запит
+            if (roleChangeRequestRepository.findByUserIdAndStatus(user.getId(),1) != null){
+                return "Ви вже створили запит, зачекайте поки його опрацюють модератори";
+            }
+
+            //Перевірка чи є в цього користувача відхилений сьогодні запит
+            if (roleChangeRequestRepository.findByUserIdAndStatusAndProcessedAt(user.getId(),3, LocalDate.now()) != null) {
+                return "За останні 24 години ваш запит був відхилений, зачекайте перед створенням нового.";
+            }
+
             RoleChangeRequest roleChangeRequest = new RoleChangeRequest();
             roleChangeRequest.setStatus(1);
             roleChangeRequest.setUserId(user.getId());
