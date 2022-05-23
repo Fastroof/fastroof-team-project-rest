@@ -5,30 +5,33 @@
 <html>
 <head>
     <%@include file="/WEB-INF/jspf/head.jspf"%>
-    <title>FTPR:Main</title>
-    <link href="<spring:url value="css/index.css"/>" rel="stylesheet">
+    <title>FTPR:My datasets</title>
+    <style>
+        .form-control-dark {
+            border-color: var(--bs-gray);
+        }
+        .form-control-dark:focus {
+            border-color: #fff;
+            box-shadow: 0 0 0 .25rem rgba(255, 255, 255, .25);
+        }
+
+        .text-small {
+            font-size: 85%;
+        }
+
+        .dropdown-toggle {
+            outline: 0;
+        }
+
+        .btn {
+            text-transform: unset !important;
+        }
+    </style>
 </head>
 <body class="bg-light">
     <%@include file="/WEB-INF/jspf/header.jspf"%>
 
     <main class="bg-white">
-
-        <section class="py-5 text-center container">
-            <div class="row">
-                <div class="col">
-                    <div class="input-group rounded">
-                        <input id="search-input" type="search" class="form-control rounded-start" placeholder="Пошук за назвою" aria-label="Search" aria-describedby="search-addon" />
-                        <button id="search-button" type="button" class="btn btn-dark">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="col">
-                     ---
-                </div>
-            </div>
-        </section>
-
         <div class="album py-5 bg-light">
             <div class="container">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
@@ -57,26 +60,5 @@
         </div>
     </main>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script type="text/javascript">
-        jQuery(function() {
-            const allDataSets = [];
-            $("div[id^='data-set-']").each(function () {
-                allDataSets.push($(this).attr('id').replace('data-set-',''));
-            });
-
-            $("#search-button").on('click', () => {
-                const value = $("#search-input").val().toLowerCase().replace(' ','');
-                allDataSets.forEach(element => {
-                    const name = '#data-set-' + element;
-                    if (element.includes(value)) {
-                        $(name).show();
-                    } else {
-                        $(name).hide();
-                    }
-                })
-            });
-        });
-    </script>
 </body>
 </html>

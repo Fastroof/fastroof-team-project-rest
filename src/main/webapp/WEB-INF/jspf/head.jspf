@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com">
 <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
 <link href='https://fonts.googleapis.com/css?family=Spectral' rel='stylesheet'>
-<link rel="icon" type="image/svg" href="<spring:url value="logo/logo.svg"/>">
+<link rel="icon" type="image/png" href="https://ucd6665e8cd955e9b90a4163e624.dl.dropboxusercontent.com/cd/0/inline/BlxfVWUI9uKz_dPB8XnroUnIsqYaI9dzE9IWC_ZyNw_uc_hCRDHpfEJzYEZ_6YMONeaA1dkozQA2tEcyWfXBgB5tnWv2vObnbowlecdaefWc83ivqamYa1gE-BVNqmc81l6D5wjGHmBednLhHWYrBDH_BaoB6uG30JMaOSatdFhTVA/file">
 <!-- MDB -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.0.0/mdb.min.css" rel="stylesheet"/>
 <!-- MDB -->
