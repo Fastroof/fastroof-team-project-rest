@@ -28,7 +28,7 @@ public class ModeratorApiController {
     @Autowired
     private DataFileRepository dataFileRepository;
 
-    @RequestMapping("/moderator/getUnprocessedRoleChangeRequests")
+    @RequestMapping("/moderator/UnprocessedRoleChangeRequests")
     public List<RoleChangeRequest> getUnprocessedRoleChangeRequests() {
         if (tokenHasModeratorRole()){
             return roleChangeRequestRepository.findAllByStatus(1);
@@ -79,7 +79,7 @@ public class ModeratorApiController {
     }
 
 
-    @RequestMapping("/moderator/getUnprocessedAddDataFileRequests")
+    @RequestMapping("/moderator/UnprocessedAddDataFileRequests")
     public List<AddDataFileRequest> getUnprocessedAddDataFileRequests() {
         if (tokenHasModeratorRole()){
             return addDataFileRequestRepository.findAllByStatus(1);
@@ -103,14 +103,14 @@ public class ModeratorApiController {
             //Maybe change link_to_file to link_to_files in DB and process it as a list of links
             DataFile dataFile = new DataFile();
             dataFile.setName(addDataFileRequest.getName());
-            dataFile.setCreatedAt(addDataFileRequest.getCreatedAt());
-            dataFile.setUpdatedAt(addDataFileRequest.getCreatedAt());
+            dataFile.setCreatedAt(LocalDate.now());
+            dataFile.setUpdatedAt(LocalDate.now());
             dataFile.setLinkToFile(addDataFileRequest.getLinkToFile());
             dataFile.setOwnerId(addDataFileRequest.getUserId());
             dataFile.setDataSetId(addDataFileRequest.getDataSetId());
 
             DataSet dataSet = dataSetRepository.findById(addDataFileRequest.getDataSetId()).get();
-            dataSet.setUpdatedAt(addDataFileRequest.getCreatedAt());
+            dataSet.setUpdatedAt(LocalDate.now());
 
             dataFileRepository.save(dataFile);
             addDataFileRequestRepository.save(addDataFileRequest);
@@ -140,7 +140,7 @@ public class ModeratorApiController {
     }
 
 
-    @RequestMapping("/moderator/getUnprocessedEditDataFileRequests")
+    @RequestMapping("/moderator/UnprocessedEditDataFileRequests")
     public List<EditDataFileRequest> getUnprocessedEditDataFileRequests() {
         if (tokenHasModeratorRole()){
             return editDataFileRequestRepository.findAllByStatus(1);
@@ -162,12 +162,12 @@ public class ModeratorApiController {
             editDataFileRequest.setModeratorId(moderator.getId());
 
             DataFile dataFile = dataFileRepository.findById(editDataFileRequest.getDataFileId()).get();
-            dataFile.setUpdatedAt(editDataFileRequest.getUpdatedAt());
+            dataFile.setUpdatedAt(LocalDate.now());
             dataFile.setLinkToFile(editDataFileRequest.getLinkToFile());
             dataFile.setName(editDataFileRequest.getName());
 
             DataSet dataSet = dataSetRepository.findById(dataFile.getDataSetId()).get();
-            dataSet.setUpdatedAt(editDataFileRequest.getUpdatedAt());
+            dataSet.setUpdatedAt(LocalDate.now());
 
             editDataFileRequestRepository.save(editDataFileRequest);
             dataFileRepository.save(dataFile);
