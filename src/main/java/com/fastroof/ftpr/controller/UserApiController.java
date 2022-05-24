@@ -28,6 +28,8 @@ public class UserApiController {
     private AddDataFileRequestRepository addDataFileRequestRepository;
     @Autowired
     private EditDataFileRequestRepository editDataFileRequestRepository;
+    @Autowired
+    private TagRepository tagRepository;
 
     @RequestMapping("/user/requestModeratorRole")
     public String requestModeratorRole() {
@@ -51,7 +53,7 @@ public class UserApiController {
         roleChangeRequest.setUserId(user.getId());
 
         roleChangeRequestRepository.save(roleChangeRequest);
-        return "Success";
+        return "Запит створено, id запиту : " + roleChangeRequest.getId();
     }
 
     @RequestMapping("/user/createEditDataFileRequest")
@@ -73,7 +75,7 @@ public class UserApiController {
             editDataFileRequest.setName(name);
 
             editDataFileRequestRepository.save(editDataFileRequest);
-            return "Edit data file request created.";
+            return "Edit data file request created. Id: " + editDataFileRequest.getId();
         } else {
             return "Data file with this id does not exist.";
         }
@@ -114,6 +116,21 @@ public class UserApiController {
             }
         } else {
             return "Data set with this id does not exist.";
+        }
+    }
+
+    @RequestMapping("/searchByName")
+    public List<DataSet> searchByName(@RequestParam("query") String query){
+        return dataSetRepository.getDataSetsByNameContains(query);
+    }
+
+    @RequestMapping("/searchByTag")
+    public List<DataSet> searchByTag(@RequestParam("id") Integer tagId){
+        Optional<Tag> tagOptional = tagRepository.findById(tagId);
+        if (tagOptional.isPresent()) {
+            return dataSetRepository.findAllByTagId(Math.toIntExact(tagId));
+        } else {
+            return null;
         }
     }
 

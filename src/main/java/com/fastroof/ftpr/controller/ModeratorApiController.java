@@ -38,12 +38,12 @@ public class ModeratorApiController {
     }
 
     @RequestMapping("/moderator/approveRoleChangeRequest")
-    public String approveRoleChangeRequest(@RequestParam("id") String requestId){
+    public String approveRoleChangeRequest(@RequestParam("id") Integer requestId){
         if (!tokenHasModeratorRole()) {
             return null;
         }
         User moderator = getUserByToken();
-        Optional<RoleChangeRequest> roleChangeRequestOptional = roleChangeRequestRepository.findById(Integer.valueOf(requestId));
+        Optional<RoleChangeRequest> roleChangeRequestOptional = roleChangeRequestRepository.findById(requestId);
         if (roleChangeRequestOptional.isPresent()) {
             RoleChangeRequest roleChangeRequest = roleChangeRequestOptional.get();
             roleChangeRequest.setModeratorId(moderator.getId());
@@ -60,12 +60,12 @@ public class ModeratorApiController {
     }
 
     @RequestMapping("/moderator/declineRoleChangeRequest")
-    public String declineRoleChangeRequest(@RequestParam("id") String requestId){
+    public String declineRoleChangeRequest(@RequestParam("id") Integer requestId){
         if (!tokenHasModeratorRole()) {
             return null;
         }
         User moderator = getUserByToken();
-        Optional<RoleChangeRequest> roleChangeRequestOptional = roleChangeRequestRepository.findById(Integer.valueOf(requestId));
+        Optional<RoleChangeRequest> roleChangeRequestOptional = roleChangeRequestRepository.findById(requestId);
         if (roleChangeRequestOptional.isPresent()) {
             RoleChangeRequest roleChangeRequest = roleChangeRequestOptional.get();
             roleChangeRequest.setModeratorId(moderator.getId());
