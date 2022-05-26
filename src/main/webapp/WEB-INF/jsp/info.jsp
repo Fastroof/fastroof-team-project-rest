@@ -5,7 +5,11 @@
 <head>
   <%@include file="/WEB-INF/jspf/head.jspf"%>
   <title>${msg}</title>
-  <link href="<spring:url value="css/modal.css"/>" rel="stylesheet">
+  <style>
+    .btn {
+      text-transform: unset !important;
+    }
+  </style>
 </head>
 <body>
   <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">

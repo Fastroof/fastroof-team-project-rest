@@ -8,7 +8,6 @@ import com.fastroof.ftpr.repository.DataSetRepository;
 import com.fastroof.ftpr.repository.TagRepository;
 import com.fastroof.ftpr.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,13 +22,10 @@ public class IndexController {
 
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private TagRepository tagRepository;
-
     @Autowired
     private DataFileRepository dataFileRepository;
-
     @Autowired
     private DataSetRepository dataSetRepository;
 
@@ -37,14 +33,16 @@ public class IndexController {
     public String showIndexPage(ModelMap model) {
         List<DataSetForIndex> dataSetsForIndex = new ArrayList<>();
         dataSetRepository.findAll().forEach(dataSet -> {
-            Optional<Tag> tagOptional = tagRepository.findById(dataSet.getTagId());
-            String tagName = null;
-            if (tagOptional.isPresent()) {
-                tagName = tagOptional.get().getName();
+            String tagName = "-";
+            if (dataSet.getTagId() != null) {
+                Optional<Tag> tagOptional = tagRepository.findById(dataSet.getTagId());
+                if (tagOptional.isPresent()) {
+                    tagName = tagOptional.get().getName();
+                }
             }
 
             Optional<User> ownerOptional = userRepository.findById(dataSet.getOwnerId());
-            String ownerName = null;
+            String ownerName = "-";
             if (ownerOptional.isPresent()) {
                 ownerName = ownerOptional.get().getFirstName() + " " + ownerOptional.get().getLastName();
             }
@@ -62,33 +60,5 @@ public class IndexController {
         Collections.reverse(dataSetsForIndex);
         model.addAttribute("dataSets", dataSetsForIndex);
         return "index";
-    }
-
-    @GetMapping("/my/datasets")
-    public String showMyDatasets(ModelMap model, Authentication authentication) {
-        int userId = userRepository.findByEmail(authentication.getName()).getId();
-        List<DataSetForIndex> myDataSets = new ArrayList<>();
-        dataSetRepository.findAll().forEach(dataSet -> {
-            if (dataSet.getOwnerId() == userId) {
-                Optional<Tag> tagOptional = tagRepository.findById(dataSet.getTagId());
-                String tagName = null;
-                if (tagOptional.isPresent()) {
-                    tagName = tagOptional.get().getName();
-                }
-
-                final int[] fileCount = {0};
-                int dataSetId = dataSet.getId();
-                dataFileRepository.findAll().forEach(dataFile -> {
-                    if (dataFile.getDataSetId() == dataSetId) {
-                        fileCount[0]++;
-                    }
-                });
-
-                myDataSets.add(new DataSetForIndex(dataSetId, dataSet.getName(), tagName, "", fileCount[0]));
-            }
-        });
-        Collections.reverse(myDataSets);
-        model.addAttribute("dataSets", myDataSets);
-        return "my/datasets";
     }
 }

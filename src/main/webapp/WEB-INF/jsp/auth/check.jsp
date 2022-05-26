@@ -6,7 +6,27 @@
 <head>
     <%@include file="/WEB-INF/jspf/head.jspf"%>
     <title>FTPR:Check</title>
-    <link href="<spring:url value="css/index.css"/>" rel="stylesheet">
+    <style>
+        .form-control-dark {
+            border-color: var(--bs-gray);
+        }
+        .form-control-dark:focus {
+            border-color: #fff;
+            box-shadow: 0 0 0 .25rem rgba(255, 255, 255, .25);
+        }
+
+        .text-small {
+            font-size: 85%;
+        }
+
+        .dropdown-toggle {
+            outline: 0;
+        }
+
+        .btn {
+            text-transform: unset !important;
+        }
+    </style>
 </head>
 <body class="bg-light">
 <%@include file="/WEB-INF/jspf/header.jspf"%>
@@ -24,8 +44,8 @@
                                 <p class="card-text mb-1"><c:out value="${request.ownerName}"/></p>
 
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <a type="button" href="/auth/approve?id=<c:out value="${request.id}"/>" class="btn btn-sm btn-outline-secondary">Прийняти</a>
-                                    <a type="button" href="/auth/decline?id=<c:out value="${request.id}"/>" class="btn btn-sm btn-outline-secondary">Відхилити</a>
+                                    <a type="button" href="/auth/approve?id=<c:out value="${request.id}"/>" class="btn btn-sm btn-outline-success">Прийняти</a>
+                                    <a type="button" href="/auth/decline?id=<c:out value="${request.id}"/>" class="btn btn-sm btn-outline-danger">Відхилити</a>
 
                                 </div>
                             </div>
@@ -37,27 +57,5 @@
         </div>
     </div>
 </main>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-<script type="text/javascript">
-    jQuery(function() {
-        const allDataSets = [];
-        $("div[id^='data-set-']").each(function () {
-            allDataSets.push($(this).attr('id').replace('data-set-',''));
-        });
-
-        $("#search-button").on('click', () => {
-            const value = $("#search-input").val().toLowerCase().replace(' ','');
-            allDataSets.forEach(element => {
-                const name = '#data-set-' + element;
-                if (element.includes(value)) {
-                    $(name).show();
-                } else {
-                    $(name).hide();
-                }
-            })
-        });
-    });
-</script>
 </body>
 </html>

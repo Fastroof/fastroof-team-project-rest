@@ -82,16 +82,13 @@ public class ModeratorActionsController {
             model.addAttribute("messnum", 2);
             model.addAttribute("msg", "Запит користувача " + user.getFirstName() + " " + user.getLastName() +
                       " на перехід прийнято");
-            model.addAttribute("link", "/auth/check");
-            model.addAttribute("text", "Натисніть, щоб продовжити ➜");
-            return "info";
         } else {
             model.addAttribute("messnum", 1);
             model.addAttribute("msg", "Запит з id=" + requestId + " не існує");
-            model.addAttribute("link", "/auth/check");
-            model.addAttribute("text", "Натисніть, щоб продовжити ➜");
-            return "info";
         }
+        model.addAttribute("link", "/auth/check");
+        model.addAttribute("text", "Натисніть, щоб продовжити ➜");
+        return "info";
     }
 
     @GetMapping("/auth/decline")
@@ -119,16 +116,13 @@ public class ModeratorActionsController {
             model.addAttribute("messnum", 2);
             model.addAttribute("msg", "Запит користувача " + user.getFirstName() + " " + user.getLastName() +
                     " на перехід відхилено");
-            model.addAttribute("link", "/auth/check");
-            model.addAttribute("text", "Натисніть, щоб продовжити ➜");
-            return "info";
         } else {
             model.addAttribute("messnum", 1);
             model.addAttribute("msg", "Запит з id=" + requestId + " не існує");
-            model.addAttribute("link", "/auth/check");
-            model.addAttribute("text", "Натисніть, щоб продовжити ➜");
-            return "info";
         }
+        model.addAttribute("link", "/auth/check");
+        model.addAttribute("text", "Натисніть, щоб продовжити ➜");
+        return "info";
     }
 
 

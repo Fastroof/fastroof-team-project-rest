@@ -21,15 +21,6 @@ public class AuthController {
         return "thymeleaf/login";
     }
 
-    @GetMapping("/success")
-    public String showSuccessPage(ModelMap model) {
-        model.addAttribute("messnum", 0);
-        model.addAttribute("msg", "Ви успішно увішли в акаунт!");
-        model.addAttribute("link", "/");
-        model.addAttribute("text", "Натисніть, щоб продовжити ➜");
-        return "info";
-    }
-
     @GetMapping("/registration")
     public String showRegistrationPage(ModelMap model) {
         model.addAttribute("user", new UserRegistrationRequest());

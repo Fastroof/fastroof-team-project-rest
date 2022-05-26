@@ -40,7 +40,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .loginPage("/login")
                     .usernameParameter("email")
                     .permitAll()
-                    .defaultSuccessUrl("/success")
                 .and()
                     .csrf().disable().cors();
 
