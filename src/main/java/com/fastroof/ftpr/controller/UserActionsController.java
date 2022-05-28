@@ -147,34 +147,37 @@ public class UserActionsController {
 
         // add files
         MultipartFile[] files = datasetFormData.getFileIn();
-        for (MultipartFile file : files) {
-            String link = "error";
-            String fileName = file.getOriginalFilename();
-            int dataSetId = dataSet.getId();
+        if (files != null) {
+            for (MultipartFile file : files) {
+                String link = "error";
+                String fileName = file.getOriginalFilename();
+                int dataSetId = dataSet.getId();
 
-            try (InputStream in = file.getInputStream()) {
-                String path = "/"+ownerId+"/"+dataSetId+"/"+fileName;
-                client.files().uploadBuilder(path).uploadAndFinish(in);
-                SharedLinkMetadata sharedLinkMetadata = client.sharing().createSharedLinkWithSettings(path);
-                link = sharedLinkMetadata.getUrl().replaceAll("dl=0$","raw=1");
-            } catch (IOException | DbxException e) {
-                e.printStackTrace();
+                try (InputStream in = file.getInputStream()) {
+                    String path = "/"+ownerId+"/"+dataSetId+"/"+fileName;
+                    client.files().uploadBuilder(path).uploadAndFinish(in);
+                    SharedLinkMetadata sharedLinkMetadata = client.sharing().createSharedLinkWithSettings(path);
+                    link = sharedLinkMetadata.getUrl().replaceAll("dl=0$","raw=1");
+                } catch (IOException | DbxException e) {
+                    e.printStackTrace();
+                }
+
+                AddDataFileRequest addDataFileRequest = new AddDataFileRequest();
+                addDataFileRequest.setCreatedAt(now);
+                addDataFileRequest.setLinkToFile(link);
+                addDataFileRequest.setName(fileName);
+                addDataFileRequest.setUserId(ownerId);
+                addDataFileRequest.setStatus(1);
+                addDataFileRequest.setDataSetId(dataSetId);
+
+                addDataFileRequestRepository.save(addDataFileRequest);
             }
-
-            AddDataFileRequest addDataFileRequest = new AddDataFileRequest();
-            addDataFileRequest.setCreatedAt(now);
-            addDataFileRequest.setLinkToFile(link);
-            addDataFileRequest.setName(fileName);
-            addDataFileRequest.setUserId(ownerId);
-            addDataFileRequest.setStatus(1);
-            addDataFileRequest.setDataSetId(dataSetId);
-
-            addDataFileRequestRepository.save(addDataFileRequest);
         }
 
         // success
         model.addAttribute("messnum", 2);
-        model.addAttribute("msg", "Датасет створено. Файли будуть додані після перевірки модератором");
+        model.addAttribute("msg", "Датасет створено.\n" +
+                "Якщо ви завантажили файли, то вони будуть додані після перевірки модератором");
         model.addAttribute("link", "/");
         model.addAttribute("text", "Натисніть, щоб перейти на головну ➜");
         return "info";

@@ -59,6 +59,26 @@ public class IndexController {
         });
         Collections.reverse(dataSetsForIndex);
         model.addAttribute("dataSets", dataSetsForIndex);
+
+        List<String> tagsNames = new ArrayList<>();
+        tagsNames.add("-");
+        tagRepository.findAll().forEach(tag -> tagsNames.add(tag.getName()));
+        model.addAttribute("tagsNames", tagsNames);
+
+        int maxFileCount = dataSetsForIndex.get(0).getFileCount();
+        int minFileCount = maxFileCount;
+
+        for (int i = 1; i < dataSetsForIndex.size(); i++) {
+            int temp = dataSetsForIndex.get(i).getFileCount();
+            if (temp > maxFileCount) {
+                maxFileCount = temp;
+            } else if (temp < minFileCount) {
+                minFileCount = temp;
+            }
+        }
+
+        model.addAttribute("maxFileCount", maxFileCount);
+        model.addAttribute("minFileCount", minFileCount);
         return "index";
     }
 }

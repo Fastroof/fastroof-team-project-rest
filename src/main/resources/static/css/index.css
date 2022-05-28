@@ -17,3 +17,17 @@
 .btn {
   text-transform: unset !important;
 }
+
+.find-tag {
+    cursor: pointer;
+}
+
+.find-tag-off {
+    cursor: pointer;
+    background-color: var(--bs-gray-600);
+}
+
+.find-tag-on {
+    cursor: pointer;
+    background-color: var(--bs-gray-900);
+}
