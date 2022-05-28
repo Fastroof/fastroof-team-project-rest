@@ -24,10 +24,12 @@
 
 .find-tag-off {
     cursor: pointer;
+    user-select: none;
     background-color: var(--bs-gray-600);
 }
 
 .find-tag-on {
     cursor: pointer;
+    user-select: none;
     background-color: var(--bs-gray-900);
 }

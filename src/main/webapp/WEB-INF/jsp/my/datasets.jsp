@@ -47,8 +47,8 @@
                                         <span class="badge bg-dark mr-2 text-wrap text-break"><c:out value="${dataSet.tagName}"/></span>&nbsp;
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <a type="button" href="/dataset/n/<c:out value="${dataSet.id}"/>?action=edit" class="btn btn-sm btn-outline-secondary">Редагувати</a>
-                                        <a type="button" href="/dataset/n/<c:out value="${dataSet.id}"/>?action=delete" class="btn btn-sm btn-outline-danger">Видалити</a>
+                                        <a type="button" href="/dataset/edit/<c:out value="${dataSet.id}"/>" class="btn btn-sm btn-outline-secondary">Редагувати</a>
+                                        <a type="button" href="/dataset/delete/<c:out value="${dataSet.id}"/>" class="btn btn-sm btn-outline-danger">Видалити</a>
                                     </div>
                                 </div>
                             </div>

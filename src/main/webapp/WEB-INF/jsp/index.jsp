@@ -54,7 +54,7 @@
                                         <span class="badge bg-dark mr-2 text-wrap text-break"><c:out value="${dataSet.tagName}"/></span>&nbsp;
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <a type="button" href="/dataset/n/<c:out value="${dataSet.id}"/>?action=show" class="btn btn-sm btn-outline-secondary">Детальніше</a>
+                                        <a type="button" href="/dataset/show/<c:out value="${dataSet.id}"/>" class="btn btn-sm btn-outline-secondary">Детальніше</a>
                                         <small class="text-muted d-inline-block text-truncate" style="max-width: 10em;"><c:out value="${dataSet.ownerName}"/></small>
                                     </div>
                                 </div>

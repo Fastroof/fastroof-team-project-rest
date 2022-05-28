@@ -79,7 +79,7 @@
                         </div>
                     </div>
                     <div class="modal-footer flex-nowrap p-0">
-                        <a href="/" type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0" data-bs-dismiss="modal">Вийти</a>
+                        <a href="/" type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0">Вийти</a>
                         <button type="submit" class="btn btn-primary btn-lg fs-6 col-6 m-0 rounded-bottom-right-3 border-start"><strong>Створити</strong></button>
                     </div>
 

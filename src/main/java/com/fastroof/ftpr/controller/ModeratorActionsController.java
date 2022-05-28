@@ -21,9 +21,9 @@ import java.util.*;
 public class ModeratorActionsController {
 
     @Autowired
-    RoleChangeRequestRepository roleChangeRequestRepository;
+    private RoleChangeRequestRepository roleChangeRequestRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @GetMapping("/auth/check")
     public String getUnprocessedRoleChangeRequests(ModelMap model, Authentication authentication){

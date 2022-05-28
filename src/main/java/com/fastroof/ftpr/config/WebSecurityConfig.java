@@ -28,7 +28,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         String[] resources = new String[] {
-                "/", "/registration", "/register_success", "/css/**", "/logo/**", "/js/**"
+                "/", "/registration", "/register_success", "/dataset/show/**", "/css/**", "/logo/**", "/js/**"
         };
 
         http

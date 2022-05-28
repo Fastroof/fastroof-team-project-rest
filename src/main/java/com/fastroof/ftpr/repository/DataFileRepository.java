@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DataFileRepository extends CrudRepository<DataFile, Integer> {
+    Iterable<DataFile> findAllByDataSetId(Integer dataSetId);
 }
