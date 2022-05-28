@@ -25,11 +25,28 @@
 .find-tag-off {
     cursor: pointer;
     user-select: none;
-    background-color: var(--bs-gray-600);
+    background-color: #669ad4;
 }
 
 .find-tag-on {
     cursor: pointer;
     user-select: none;
-    background-color: var(--bs-gray-900);
+    background-color: #0057b8;
+}
+
+.btn-ua {
+    width: fit-content;
+    color: #fff;
+    background-color: #0057b8;
+    border-color: #0057b8;
+}
+
+.btn-ua:hover {
+    color: #fff;
+    background-color: #669ad4;
+    border-color: #669ad4;
+}
+
+.badge-ua {
+    background-color: #ffd700;
 }

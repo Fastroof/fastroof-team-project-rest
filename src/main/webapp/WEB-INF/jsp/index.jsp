@@ -36,7 +36,7 @@
                     </h5>
                 </div>
             </div>
-            <button id="search-button" type="button" class="btn btn-dark mt-3" style="width: fit-content;">Викорастати фільтри та теги</button>
+            <button id="search-button" type="button" class="btn btn-ua mt-3">Викорастати фільтри та теги</button>
         </section>
         <hr class="m-0">
         <div class="album py-4 bg-light">
@@ -51,7 +51,7 @@
                                     <p class="mb-1"><small class="text-secondary">Кількість файлів: <c:out value="${dataSet.fileCount}"/></small></p>
                                     <div class="mb-3">
                                         <small class="text-secondary">Тег: </small>
-                                        <span class="badge bg-dark mr-2 text-wrap text-break"><c:out value="${dataSet.tagName}"/></span>&nbsp;
+                                        <span class="badge badge-ua text-dark mr-2 text-wrap text-break"><c:out value="${dataSet.tagName}"/></span>&nbsp;
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center">
                                         <a type="button" href="/dataset/show/<c:out value="${dataSet.id}"/>" class="btn btn-sm btn-outline-secondary">Детальніше</a>
@@ -72,7 +72,7 @@
     <script type="text/javascript">
         jQuery(function() {
 
-            $("#anchor").rangeSlider({ skin: 'dark', direction: 'horizontal', type: 'interval', scale: true }, { step: 1, values: [], min: <c:out value="${minFileCount}"/>, max: <c:out value="${maxFileCount}"/> });
+            $("#anchor").rangeSlider({ skin: 'blue', direction: 'horizontal', type: 'interval', scale: true }, { step: 1, values: [], min: <c:out value="${minFileCount}"/>, max: <c:out value="${maxFileCount}"/> });
 
             const allDataSets = [];
             $("div[id^='data-set-']").each(function () {
