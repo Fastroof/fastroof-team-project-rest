@@ -15,7 +15,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <title>FTPR:Dataset</title>
+    <title>FTPR:Dataset edit</title>
     <style>
         .rounded-bottom-right-3 {
             border-radius: 0;
@@ -48,19 +48,19 @@
 </head>
 <body>
 <main>
-    <form class="needs-validation" method="post" action="/new/dataset" modelAttribute="datasetFormData" enctype="multipart/form-data">
+    <form class="needs-validation" method="post" action="/edit/dataset/<c:out value="${dataSet.id}"/>" modelAttribute="editDatasetFormData" enctype="multipart/form-data">
         <div class="modal modal-alert d-block bg-secondary py-5" tabindex="-1" role="dialog" id="modalChoice">
             <div class="modal-dialog" role="document">
                 <div class="modal-content rounded-3 shadow">
                     <div class="modal-body">
                         <div class="p-4 text-center">
                             <img class="mb-2" src="https://i.imgur.com/EcMMVHW.png" alt="" width="48" height="48">
-                            <h4 class="mb-3">Створення датасету</h4>
+                            <h4 class="mb-3">Редагування датасету</h4>
 
                             <div class="row g-3">
                                 <div class="col">
                                     <label for="name" class="form-label">Назва</label>
-                                    <input type="text" class="form-control" id="name" name="name" required>
+                                    <input type="text" class="form-control" id="name" name="name" value="<c:out value="${dataSet.name}"/>" required>
                                 </div>
 
                                 <div class="col">
@@ -88,8 +88,8 @@
                         </div>
                     </div>
                     <div class="modal-footer flex-nowrap p-0">
-                        <a href="/" type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0">Вийти</a>
-                        <button type="submit" class="btn btn-primary btn-lg fs-6 col-6 m-0 rounded-bottom-right-3 border-start"><strong>Створити</strong></button>
+                        <a href="/my/datasets" type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0">Вийти</a>
+                        <button type="submit" id="sbmt" class="btn btn-primary btn-lg fs-6 col-6 m-0 rounded-bottom-right-3 border-start"><strong>Зберегти зміни</strong></button>
                     </div>
 
                 </div>
@@ -102,12 +102,15 @@
 <script type="text/javascript">
 
     jQuery(function() {
+
+        $('#tagName').val("<c:out value="${selectedTag}"/>");
+
         $("#file-add").on("click", () => {
             if ($('input[id^="file-in"]').length === 0) {
                 addFileDiv();
             } else {
                 const fileIn = $('input[id^="file-in"]:last');
-                if (fileIn.val() !== "") {
+                if ((fileIn.val() !== "") || (fileIn.attr("age") === "old")) {
                     addFileDiv();
                 } else {
                     fileIn.parent().parent().addClass("list-group-item-danger");
@@ -122,7 +125,7 @@
                 '        <li class="list-group-item list-group-item-action">' +
                 '            <label class="label-in">' +
                 '                <span>Оберіть файл ...</span>' +
-                '                <input id="file-in" name="fileIn" class="mt-1 form-control" type="file" required>'+
+                '                <input id="file-in" name="fileIn" class="mt-1 form-control" age="new" type="file" required>'+
                 '            </label>' +
                 '        </li>' +
                 '    </ul>' +
@@ -145,10 +148,28 @@
                     $(this).parent().parent().addClass("list-group-item-light");
                     const name = $(this).val().replace(/C:\\fakepath\\/i, '');
                     $(this).parent().find("span").text(name);
+                    $(this).attr("age", "new");
+                    $(this).parent().find('input[name="oldFileLink"]').remove();
                 }
             });
         }
 
+        <c:forEach var="file" items="${files}">
+        addFileDiv();
+        var input = $('input[id*="file-in"]:last');
+        input.parent().find("span").text("<c:out value="${file.name}"/>" + " (<c:out value="${file.linkToFile}"/>)");
+        input.parent().parent().removeClass("list-group-item-action");
+        input.parent().parent().addClass("list-group-item-light");
+        input.attr("age", "old");
+        input.after('<input type="text" name="oldFileLink" style="display:none;" value="<c:out value="${file.linkToFile}"/>"/>');
+        </c:forEach>
+
+        $("#sbmt").on("click", function () {
+            $('input[age*="old"]').each(function () {
+                $(this).prop("disabled", true);
+            });
+            $("form").submit();
+        });
     });
 </script>
 </body>

@@ -1,12 +1,11 @@
 package com.fastroof.ftpr.controller;
 
-import com.dropbox.core.DbxException;
-import com.dropbox.core.DbxRequestConfig;
-import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.sharing.SharedLinkMetadata;
+import com.box.sdk.*;
+import com.box.sdk.sharedlink.BoxSharedLinkRequest;
 import com.fastroof.ftpr.entity.*;
 import com.fastroof.ftpr.pojo.DataSetForIndex;
 import com.fastroof.ftpr.pojo.DatasetFormData;
+import com.fastroof.ftpr.pojo.EditDatasetFormData;
 import com.fastroof.ftpr.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -14,10 +13,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.*;
 import java.time.LocalDate;
 import java.util.*;
+
+import static com.box.sdk.BoxSharedLink.Access.OPEN;
 
 @Controller
 public class UserActionsController {
@@ -34,10 +36,10 @@ public class UserActionsController {
     private DataSetRepository dataSetRepository;
     @Autowired
     private AddDataFileRequestRepository addDataFileRequestRepository;
+    @Autowired
+    private EditDataFileRequestRepository editDataFileRequestRepository;
 
-    private static final String ACCESS_TOKEN = "sl.BIURThpa3NzDEARSlOwS9PRrRTr_k_4ErKYSBe5RyVKKmK1L7qnNbr9BXGGvXCfzWRqkWGtXyvI6IdAOj7bcJoEtKU-DOlAXF29slTsgif-suIayULDzEHJY65rndPz2_kyYnrjV";
-    private static final DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/ftpr").build();
-    private static final DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
+    private static final BoxDeveloperEditionAPIConnection api = BoxDeveloperEditionAPIConnection.getAppEnterpriseConnection(BoxConfig.readFrom("{\"boxAppSettings\":{\"clientID\":\"5p1dcgaaou4x1da522cwyx29hatwxhy4\",\"clientSecret\":\"ojy2wAvXNIEiIzn7jurEUR1expahtGR4\",\"appAuth\": {\"publicKeyID\": \"j861aa88\",\"privateKey\": \"-----BEGIN ENCRYPTED PRIVATE KEY-----\\nMIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIbKTYCsUB4vgCAggA\\nMBQGCCqGSIb3DQMHBAiQhH8WpEU5iwSCBMh4PtcEtD3MAoE0GA60IC5shzC5rZix\\neLvfijXF0uE4iFHDXisimzbESv8TkUvc+BN5UI/T03LTEmWvgQ38YidVk6E1q2Zr\\nu3TRgJuPFJayDTOpndtPWWDayyz4lSMRndRyLT35QrRwD7L7o1iNdDlrn2AFL7g3\\naBDGNs/RzGrubele6SWGHXXd11dmuqOnvO3Z8Ek15V1TAZioFHXMsqLOTnZ18MP8\\n9ujd7QMDY27K0mchFYUtztcZwnFDdb6Psvcg/cX83seEDI8SpaoeyRDMcvJaIkyJ\\nQvAMKFIM8hEtlcU4i881oSzPoXklMEXODIkAZi48cYYegX+FdQD3+3Qfr4z7HhDE\\n82BlmWtIy9aOBfTA55NQqBarNb9bRRR9grsjWWMDfsaA+PNNp3KrqoneBkm1oaC4\\nBo4r2Mn/J0OqZf3MIzZgiKf7GW37cB3ZIs36Skqpjl+J24shP+HRi9Xz+qpSJYtG\\ndoWanTtl9+kDRojn7rco0wLIRFQVrOVUun7MRoS+1MVc1aylnOzO1uc7v9uiysep\\nLByHHmjmL/4AzY7l3lLB7Zxhg0uGosXanKxqa9mULpsSJopSHwysZLviX/cYCVvs\\ntPu4AObMdr01oDGH98fLdjiqzI/UoNaa4ejNZ0w3SFXjJrl6a/Vy1WONEhZ4o/dU\\nYNiaHoDSUDQPcWoktPmAxMzBK6UppUCWD7l059NQhbTRmI349V3Ajh8f8gtGy3fu\\nbmkGgeNtQ+BLBLicbWTve4yG0r6Q4CSI8Ec12VhkBtQ7Ko/1IIwQ1FrgYBSaKlJZ\\nmAsQSlFT5+2ruq5bpNsb1rTeMoNsSzqbkLXM9e89UBEI3EpyFOOygwSJWMtYVWmy\\nN4DJdyKiDddw5HYqwg7iNt6YGHccwyD2loJC50FAgB+CzNle49uJmZe6nZBzgiRv\\n7T/KZYQNSPVQB6p9K9xMqOh8CbCq+SO+XHCcqkoSDgwOFtFyLV+hxSTEdWNtC5uV\\nA3o+liioX0i3zkjdkpj8++mlAc9xO9o5o9hv/BKiQqfAWodzvvFZbnuu4VLg8zrt\\n0V+32IzF24o37P0NWfiMAXiJMK7C3vewN374nEANtBQX3j0vK4K9inf/YMgWzP76\\nSKqGsFs/NqG5FD/6TuEW1s9nolTfNl4W0tjvRtY2pyc2/7b6lO68kRpZf7KR8iga\\nF2r07j3nXkNFA9mPLSdLDdEHQTfdgdIjkb1CFmBQ2HDD6m+aO/SEaPIOtNACPuff\\nPoTwTMTYg/UvBMSiq1lTM0RyQXA7wXfiBqNKJGd6KQTBO/VYmxZfruWGCkGea2WF\\nektgHrNctglxdVMRmUxp3oLrvkKjQTFT6wHsYGxcJVop6P7FRItOCo/vfJOrsqEp\\nnar3ixRpI1XIRIpVjd0WRlMoKBmzpSXfJFxtp9COdIH1RYkEkhm4vqgmncSS2+5n\\nxKmz5YIoMB5bqprf7WQDG8hCSSHWudB9G1mUOpoCNZiBH2DUXsiLdjUadi72+Zer\\niPRBvgU5iqxcyLtUOHFnq/bj78L0ecyD2Bv0AAPnIc/P5VyHmjGGUCA2Y3lIh8+N\\n5ko+iT4+2K/szzEkNoPuPZ12xM+KxGsiIkPi3+ICtG/YOWVJcrUCfk/ZtI8WFl+3\\ngow=\\n-----END ENCRYPTED PRIVATE KEY-----\\n\",\"passphrase\":\"5d05a1c6644d8e022bdf559600b8efaf\"}},\"enterpriseID\": \"900264880\"}"));
 
     @GetMapping("/to/moderator")
     public String createRoleChangeRequest(ModelMap model, Authentication authentication) {
@@ -146,30 +148,14 @@ public class UserActionsController {
         // add files
         MultipartFile[] files = datasetFormData.getFileIn();
         if (files != null) {
-            for (MultipartFile file : files) {
-                String link = "error";
-                String fileName = file.getOriginalFilename();
-                int dataSetId = dataSet.getId();
-
-                try (InputStream in = file.getInputStream()) {
-                    String path = "/"+ownerId+"/"+dataSetId+"/"+fileName;
-                    client.files().uploadBuilder(path).uploadAndFinish(in);
-                    SharedLinkMetadata sharedLinkMetadata = client.sharing().createSharedLinkWithSettings(path);
-                    link = sharedLinkMetadata.getUrl().replaceAll("dl=0$","raw=1");
-                } catch (IOException | DbxException e) {
-                    e.printStackTrace();
-                }
-
-                AddDataFileRequest addDataFileRequest = new AddDataFileRequest();
-                addDataFileRequest.setCreatedAt(now);
-                addDataFileRequest.setLinkToFile(link);
-                addDataFileRequest.setName(fileName);
-                addDataFileRequest.setUserId(ownerId);
-                addDataFileRequest.setStatus(1);
-                addDataFileRequest.setDataSetId(dataSetId);
-
-                addDataFileRequestRepository.save(addDataFileRequest);
-            }
+            int dataSetId = dataSet.getId();
+            // box
+            // find owner folder or create
+            BoxFolder ownerFolder = findAndGetFolder(BoxFolder.getRootFolder(api), String.valueOf(ownerId));
+            // find data set folder or create
+            BoxFolder dataSetFolder = findAndGetFolder(ownerFolder, String.valueOf(dataSetId));
+            // upload
+            uploadFilesToBox(ownerId, now, dataSetId, dataSetFolder, files);
         }
 
         // success
@@ -179,5 +165,235 @@ public class UserActionsController {
         model.addAttribute("link", "/");
         model.addAttribute("text", "Натисніть, щоб перейти на головну ➜");
         return "info";
+    }
+
+    private static BoxFolder findAndGetFolder(BoxFolder parentFolder, String id) {
+        String ownerFolderId = "";
+        for (BoxItem.Info itemInfo : parentFolder) {
+            if (itemInfo.getName().equals(id)) {
+                ownerFolderId = itemInfo.getID();
+            }
+        }
+        if ("".equals(ownerFolderId)) {
+            BoxFolder.Info ownerFolderInfo = parentFolder.createFolder(id);
+            ownerFolderId = ownerFolderInfo.getID();
+        }
+        return new BoxFolder(api, ownerFolderId);
+    }
+
+    @GetMapping("/show/dataset/{id}")
+    @ResponseBody
+    public ModelAndView showDataSet(@PathVariable("id") int id) {
+        Optional<DataSet> dataSetOptional = dataSetRepository.findById(id);
+        ModelAndView mav;
+        if (dataSetOptional.isPresent()) {
+            mav = new ModelAndView("dataset");
+            DataSet dataset = dataSetOptional.get();
+            mav.addObject("datasetName", dataset.getName());
+            String tagName = "-";
+            if (dataset.getTagId() != null) {
+                Optional<Tag> tagOptional = tagRepository.findById(dataset.getTagId());
+                if (tagOptional.isPresent()) {
+                    tagName = tagOptional.get().getName();
+                }
+            }
+            mav.addObject("tagName", tagName);
+            mav.addObject("files", dataFileRepository.findAllByDataSetId(dataset.getId()));
+        } else {
+            mav = new ModelAndView("info");
+            mav.addObject("messnum", 1);
+            mav.addObject("msg", "Трапилася помилка");
+            mav.addObject("link", "/");
+            mav.addObject("text", "Натисніть, щоб вийти ➜");
+        }
+        return mav;
+    }
+
+    @GetMapping("/delete/dataset/{id}")
+    @ResponseBody
+    public ModelAndView deleteDataSet(@PathVariable("id") int id, Authentication authentication) {
+        int userId = userRepository.findByEmail(authentication.getName()).getId();
+        Optional<DataSet> dataSetOptional = dataSetRepository.findById(id);
+        ModelAndView mav = new ModelAndView("info");
+        if (dataSetOptional.isPresent()) {
+            DataSet dataSet = dataSetOptional.get();
+            if (userId == dataSet.getOwnerId()) {
+                int dataSetId = dataSet.getId();
+                if (addDataFileRequestRepository.existsByDataSetId(dataSetId)) {
+                    addDataFileRequestRepository.deleteAllByDataSetId(dataSetId);
+                }
+                dataFileRepository.findAllByDataSetId(dataSetId).forEach(dataFile -> {
+                    if (editDataFileRequestRepository.existsByDataFileId(dataFile.getId())) {
+                        editDataFileRequestRepository.deleteAllByDataFileId(dataFile.getId());
+                    }
+                });
+                if (dataFileRepository.existsByDataSetId(dataSetId)) {
+                    dataFileRepository.deleteAllByDataSetId(dataSetId);
+                }
+                dataSetRepository.delete(dataSet);
+
+                mav.addObject("messnum", 2);
+                mav.addObject("msg", "Датасет та всі пов'язані файли успішно видалений");
+                mav.addObject("link", "/my/datasets");
+            } else {
+                mav.addObject("messnum", 1);
+                mav.addObject("msg", "Недостатньо прав");
+                mav.addObject("link", "/");
+            }
+        } else {
+            mav.addObject("messnum", 1);
+            mav.addObject("msg", "Трапилася помилка");
+            mav.addObject("link", "/");
+        }
+        mav.addObject("text", "Натисніть, щоб вийти ➜");
+        return mav;
+    }
+
+    @GetMapping("/edit/dataset/{id}")
+    @ResponseBody
+    public ModelAndView editDataSet(@PathVariable("id") int id, Authentication authentication) {
+        int userId = userRepository.findByEmail(authentication.getName()).getId();
+        Optional<DataSet> dataSetOptional = dataSetRepository.findById(id);
+        ModelAndView mav;
+        if (dataSetOptional.isPresent()) {
+            DataSet dataSet = dataSetOptional.get();
+            if (userId == dataSet.getOwnerId()) {
+                mav = new ModelAndView("edit/dataset");
+                mav.addObject("dataSet", dataSet);
+                String tagName = "-";
+                if (dataSet.getTagId() != null) {
+                    Optional<Tag> tagOptional = tagRepository.findById(dataSet.getTagId());
+                    if (tagOptional.isPresent()) {
+                        tagName = tagOptional.get().getName();
+                    }
+                }
+                mav.addObject("selectedTag", tagName);
+                List<String> tagsNames = new ArrayList<>();
+                tagRepository.findAll().forEach(tag -> tagsNames.add(tag.getName()));
+                mav.addObject("tagsNames", tagsNames);
+                mav.addObject("files", dataFileRepository.findAllByDataSetId(dataSet.getId()));
+            } else {
+                mav = new ModelAndView("info");
+                mav.addObject("messnum", 1);
+                mav.addObject("msg", "Недостатньо прав");
+                mav.addObject("link", "/");
+                mav.addObject("text", "Натисніть, щоб вийти ➜");
+            }
+        } else {
+            mav = new ModelAndView("info");
+            mav.addObject("messnum", 1);
+            mav.addObject("msg", "Трапилася помилка");
+            mav.addObject("link", "/");
+            mav.addObject("text", "Натисніть, щоб вийти ➜");
+        }
+        return mav;
+    }
+
+    @PostMapping("/edit/dataset/{id}")
+    @ResponseBody
+    public ModelAndView editDataSetPost(@PathVariable("id") int id, @ModelAttribute("editDatasetFormData") EditDatasetFormData editDatasetFormData, Authentication authentication) {
+        int userId = userRepository.findByEmail(authentication.getName()).getId();
+        Optional<DataSet> dataSetOptional = dataSetRepository.findById(id);
+        ModelAndView mav;
+        if (dataSetOptional.isPresent()) {
+            DataSet dataSet = dataSetOptional.get();
+            if (userId == dataSet.getOwnerId()) {
+
+                LocalDate now = LocalDate.now();
+                String datasetName = editDatasetFormData.getName();
+                String tagName = editDatasetFormData.getTagName();
+
+                // edit dataset
+                dataSet.setUpdatedAt(now);
+                if (!"-".equals(tagName)) {
+                    dataSet.setTagId(tagRepository.findByName(tagName).getId());
+                } else {
+                    dataSet.setTagId(null);
+                }
+                dataSet.setName(datasetName);
+
+                // edit or add files
+                int dataSetId = dataSet.getId();
+                // box
+                // find owner folder
+                BoxFolder ownerFolder = findAndGetFolder(BoxFolder.getRootFolder(api), String.valueOf(userId));
+                // find data set folder
+                BoxFolder dataSetFolder = findAndGetFolder(ownerFolder, String.valueOf(dataSetId));
+
+                for (BoxItem.Info itemInfo : dataSetFolder) {
+                    if (itemInfo instanceof BoxFile.Info fileInfo) {
+                        if (!Arrays.asList(editDatasetFormData.getOldFileLink()).contains(fileInfo.getSharedLink().getURL())) {
+                            EditDataFileRequest editDataFileRequest = new EditDataFileRequest();
+
+                            DataFile dataFile = dataFileRepository.findByLinkToFile(fileInfo.getSharedLink().getURL());
+
+                            editDataFileRequest.setUserId(userId);
+                            editDataFileRequest.setStatus(1);
+                            editDataFileRequest.setDataFileId(dataFile.getId());
+                            editDataFileRequest.setUpdatedAt(now);
+                            editDataFileRequest.setLinkToFile("delete");
+                            editDataFileRequest.setName(dataFile.getName());
+
+                            editDataFileRequestRepository.save(editDataFileRequest);
+                        }
+                    }
+                }
+
+                MultipartFile[] files = editDatasetFormData.getFileIn();
+                if (files != null) {
+                    uploadFilesToBox(userId, now, dataSetId, dataSetFolder, files);
+                }
+
+                mav = new ModelAndView("info");
+                mav.addObject("messnum", 2);
+                mav.addObject("msg", "Датасет оновлено.\n" +
+                        "Якщо ви завантажили або редагували файли, то вони будуть додані " +
+                        "або оновлені після перевірки модератором");
+                mav.addObject("link", "/my/datasets");
+                mav.addObject("text", "Натисніть, щоб вийти ➜");
+            } else {
+                mav = new ModelAndView("info");
+                mav.addObject("messnum", 1);
+                mav.addObject("msg", "Недостатньо прав");
+                mav.addObject("link", "/");
+                mav.addObject("text", "Натисніть, щоб вийти ➜");
+            }
+        } else {
+            mav = new ModelAndView("info");
+            mav.addObject("messnum", 1);
+            mav.addObject("msg", "Трапилася помилка");
+            mav.addObject("link", "/");
+            mav.addObject("text", "Натисніть, щоб вийти ➜");
+        }
+        return mav;
+    }
+
+    private void uploadFilesToBox(int userId, LocalDate now, int dataSetId, BoxFolder dataSetFolder, MultipartFile[] files) {
+        for (MultipartFile file : files) {
+            String link = "error";
+            String fileName = file.getOriginalFilename();
+
+            try (InputStream in = file.getInputStream()) {
+                BoxFile.Info newFileInfo = dataSetFolder.uploadFile(in, fileName);
+                BoxFile newFile = new BoxFile(api, newFileInfo.getID());
+                BoxSharedLinkRequest sharedLinkRequest = new BoxSharedLinkRequest()
+                        .access(OPEN)
+                        .permissions(true, true);
+                BoxSharedLink sharedLink = newFile.createSharedLink(sharedLinkRequest);
+                link = sharedLink.getURL();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            AddDataFileRequest addDataFileRequest = new AddDataFileRequest();
+            addDataFileRequest.setCreatedAt(now);
+            addDataFileRequest.setLinkToFile(link);
+            addDataFileRequest.setName(fileName);
+            addDataFileRequest.setUserId(userId);
+            addDataFileRequest.setStatus(1);
+            addDataFileRequest.setDataSetId(dataSetId);
+
+            addDataFileRequestRepository.save(addDataFileRequest);
+        }
     }
 }
