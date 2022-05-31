@@ -14,5 +14,5 @@ public class EditDatasetFormData implements Serializable {
     private String name;
     private String tagName;
     private MultipartFile[] fileIn;
-    private String[] oldFileLink;
+    private String[] oldFileName;
 }

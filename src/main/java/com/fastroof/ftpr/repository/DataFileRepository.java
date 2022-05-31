@@ -10,6 +10,6 @@ public interface DataFileRepository extends CrudRepository<DataFile, Integer> {
     Iterable<DataFile> findAllByDataSetId(Integer dataSetId);
     @Transactional
     void deleteAllByDataSetId(int dataSetId);
-    DataFile findByLinkToFile(String linkToFile);
+    DataFile findByDataSetIdAndName(Integer dataSetId, String name);
     boolean existsByDataSetId(int dataSetId);
 }

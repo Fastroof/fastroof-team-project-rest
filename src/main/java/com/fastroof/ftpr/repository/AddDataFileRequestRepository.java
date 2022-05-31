@@ -12,6 +12,6 @@ public interface AddDataFileRequestRepository extends CrudRepository<AddDataFile
     @Transactional
     void deleteAllByDataSetId(int dataSetId);
     boolean existsByDataSetId(int dataSetId);
-
+    boolean existsByDataSetIdAndStatus(int dataSetId, int status);
     List<AddDataFileRequest> findAllByStatus(int i);
 }

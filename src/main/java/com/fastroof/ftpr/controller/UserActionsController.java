@@ -155,7 +155,9 @@ public class UserActionsController {
             // find data set folder or create
             BoxFolder dataSetFolder = findAndGetFolder(ownerFolder, String.valueOf(dataSetId));
             // upload
-            uploadFilesToBox(ownerId, now, dataSetId, dataSetFolder, files);
+            for (MultipartFile file : files) {
+                uploadFileToBox(ownerId, now, dataSetId, dataSetFolder, file);
+            }
         }
 
         // success
@@ -232,6 +234,13 @@ public class UserActionsController {
                 }
                 dataSetRepository.delete(dataSet);
 
+                // box
+                // find owner folder
+                BoxFolder ownerFolder = findAndGetFolder(BoxFolder.getRootFolder(api), String.valueOf(userId));
+                // find data set folder
+                BoxFolder dataSetFolder = findAndGetFolder(ownerFolder, String.valueOf(dataSetId));
+                dataSetFolder.delete(true);
+
                 mav.addObject("messnum", 2);
                 mav.addObject("msg", "Датасет та всі пов'язані файли успішно видалений");
                 mav.addObject("link", "/my/datasets");
@@ -257,6 +266,10 @@ public class UserActionsController {
         ModelAndView mav;
         if (dataSetOptional.isPresent()) {
             DataSet dataSet = dataSetOptional.get();
+
+            mav = isAllChecked(dataSet);
+            if (mav != null) return mav;
+
             if (userId == dataSet.getOwnerId()) {
                 mav = new ModelAndView("edit/dataset");
                 mav.addObject("dataSet", dataSet);
@@ -299,9 +312,93 @@ public class UserActionsController {
             DataSet dataSet = dataSetOptional.get();
             if (userId == dataSet.getOwnerId()) {
 
+                mav = isAllChecked(dataSet);
+                if (mav != null) return mav;
+
                 LocalDate now = LocalDate.now();
                 String datasetName = editDatasetFormData.getName();
                 String tagName = editDatasetFormData.getTagName();
+
+                // edit or add files
+                int dataSetId = dataSet.getId();
+                // box
+                // find owner folder
+                BoxFolder ownerFolder = findAndGetFolder(BoxFolder.getRootFolder(api), String.valueOf(userId));
+                // find data set folder
+                BoxFolder dataSetFolder = findAndGetFolder(ownerFolder, String.valueOf(dataSetId));
+                // create edit folder or find
+                BoxFolder dataSetEditFolder = findAndGetFolder(ownerFolder, dataSetId +"_edit");
+
+                List<MultipartFile> files = new ArrayList<>();
+                List<String> newFilesNames = new ArrayList<>();
+                if (editDatasetFormData.getFileIn() != null) {
+                    files = List.of(editDatasetFormData.getFileIn());
+                    for (MultipartFile file: files) {
+                        newFilesNames.add(file.getOriginalFilename());
+                    }
+                }
+
+                try {
+                    List<String> oldFilesNames = new ArrayList<>();
+                    if (editDatasetFormData.getOldFileName() != null) {
+                        oldFilesNames = List.of(editDatasetFormData.getOldFileName());
+                    }
+
+                    for (BoxItem.Info itemInfo : dataSetFolder) {
+                        if (itemInfo instanceof BoxFile.Info fileInfo) {
+                            if (!oldFilesNames.contains(fileInfo.getName())) {
+                                if (newFilesNames.contains(fileInfo.getName())) {
+                                    String link = "error";
+                                    int index = newFilesNames.indexOf(fileInfo.getName());
+                                    MultipartFile file = files.get(index);
+
+                                    try (InputStream in = file.getInputStream()) {
+                                        BoxFile.Info newFileInfo = dataSetEditFolder.uploadFile(in, fileInfo.getName());
+                                        BoxFile newFile = new BoxFile(api, newFileInfo.getID());
+                                        BoxSharedLinkRequest sharedLinkRequest = new BoxSharedLinkRequest()
+                                                .access(OPEN)
+                                                .permissions(true, true);
+                                        BoxSharedLink sharedLink = newFile.createSharedLink(sharedLinkRequest);
+                                        link = sharedLink.getURL();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    EditDataFileRequest editDataFileRequest = new EditDataFileRequest();
+                                    editDataFileRequest.setUserId(userId);
+                                    editDataFileRequest.setStatus(1);
+                                    DataFile dataFile = dataFileRepository.findByDataSetIdAndName(dataSetId, fileInfo.getName());
+                                    editDataFileRequest.setDataFileId(dataFile.getId());
+                                    editDataFileRequest.setUpdatedAt(now);
+                                    editDataFileRequest.setLinkToFile(link);
+                                    editDataFileRequest.setName(dataFile.getName());
+                                    editDataFileRequestRepository.save(editDataFileRequest);
+                                    files.remove(index);
+                                } else {
+                                    EditDataFileRequest editDataFileRequest = new EditDataFileRequest();
+                                    editDataFileRequest.setUserId(userId);
+                                    editDataFileRequest.setStatus(1);
+                                    DataFile dataFile = dataFileRepository.findByDataSetIdAndName(dataSetId, fileInfo.getName());
+                                    editDataFileRequest.setDataFileId(dataFile.getId());
+                                    editDataFileRequest.setUpdatedAt(now);
+                                    editDataFileRequest.setLinkToFile("deleted");
+                                    editDataFileRequest.setName(dataFile.getName());
+                                    editDataFileRequestRepository.save(editDataFileRequest);
+                                }
+                            }
+                        }
+                    }
+                } catch (Throwable throwable) {
+                    mav = new ModelAndView("info");
+                    mav.addObject("messnum", 1);
+                    mav.addObject("msg", "Трапилася помилка. Дані не відповідають потрібним.");
+                    mav.addObject("link", "/");
+                    mav.addObject("text", "Натисніть, щоб вийти ➜");
+                    return mav;
+                }
+
+                for (MultipartFile file: files) {
+                    uploadFileToBox(userId, now, dataSetId, dataSetFolder, file);
+                }
 
                 // edit dataset
                 dataSet.setUpdatedAt(now);
@@ -311,38 +408,7 @@ public class UserActionsController {
                     dataSet.setTagId(null);
                 }
                 dataSet.setName(datasetName);
-
-                // edit or add files
-                int dataSetId = dataSet.getId();
-                // box
-                // find owner folder
-                BoxFolder ownerFolder = findAndGetFolder(BoxFolder.getRootFolder(api), String.valueOf(userId));
-                // find data set folder
-                BoxFolder dataSetFolder = findAndGetFolder(ownerFolder, String.valueOf(dataSetId));
-
-                for (BoxItem.Info itemInfo : dataSetFolder) {
-                    if (itemInfo instanceof BoxFile.Info fileInfo) {
-                        if (!Arrays.asList(editDatasetFormData.getOldFileLink()).contains(fileInfo.getSharedLink().getURL())) {
-                            EditDataFileRequest editDataFileRequest = new EditDataFileRequest();
-
-                            DataFile dataFile = dataFileRepository.findByLinkToFile(fileInfo.getSharedLink().getURL());
-
-                            editDataFileRequest.setUserId(userId);
-                            editDataFileRequest.setStatus(1);
-                            editDataFileRequest.setDataFileId(dataFile.getId());
-                            editDataFileRequest.setUpdatedAt(now);
-                            editDataFileRequest.setLinkToFile("delete");
-                            editDataFileRequest.setName(dataFile.getName());
-
-                            editDataFileRequestRepository.save(editDataFileRequest);
-                        }
-                    }
-                }
-
-                MultipartFile[] files = editDatasetFormData.getFileIn();
-                if (files != null) {
-                    uploadFilesToBox(userId, now, dataSetId, dataSetFolder, files);
-                }
+                dataSetRepository.save(dataSet);
 
                 mav = new ModelAndView("info");
                 mav.addObject("messnum", 2);
@@ -350,14 +416,13 @@ public class UserActionsController {
                         "Якщо ви завантажили або редагували файли, то вони будуть додані " +
                         "або оновлені після перевірки модератором");
                 mav.addObject("link", "/my/datasets");
-                mav.addObject("text", "Натисніть, щоб вийти ➜");
             } else {
                 mav = new ModelAndView("info");
                 mav.addObject("messnum", 1);
                 mav.addObject("msg", "Недостатньо прав");
                 mav.addObject("link", "/");
-                mav.addObject("text", "Натисніть, щоб вийти ➜");
             }
+            mav.addObject("text", "Натисніть, щоб вийти ➜");
         } else {
             mav = new ModelAndView("info");
             mav.addObject("messnum", 1);
@@ -368,32 +433,53 @@ public class UserActionsController {
         return mav;
     }
 
-    private void uploadFilesToBox(int userId, LocalDate now, int dataSetId, BoxFolder dataSetFolder, MultipartFile[] files) {
-        for (MultipartFile file : files) {
-            String link = "error";
-            String fileName = file.getOriginalFilename();
-
-            try (InputStream in = file.getInputStream()) {
-                BoxFile.Info newFileInfo = dataSetFolder.uploadFile(in, fileName);
-                BoxFile newFile = new BoxFile(api, newFileInfo.getID());
-                BoxSharedLinkRequest sharedLinkRequest = new BoxSharedLinkRequest()
-                        .access(OPEN)
-                        .permissions(true, true);
-                BoxSharedLink sharedLink = newFile.createSharedLink(sharedLinkRequest);
-                link = sharedLink.getURL();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            AddDataFileRequest addDataFileRequest = new AddDataFileRequest();
-            addDataFileRequest.setCreatedAt(now);
-            addDataFileRequest.setLinkToFile(link);
-            addDataFileRequest.setName(fileName);
-            addDataFileRequest.setUserId(userId);
-            addDataFileRequest.setStatus(1);
-            addDataFileRequest.setDataSetId(dataSetId);
-
-            addDataFileRequestRepository.save(addDataFileRequest);
+    private ModelAndView isAllChecked(DataSet dataSet) {
+        ModelAndView mav;
+        if (addDataFileRequestRepository.existsByDataSetIdAndStatus(dataSet.getId(), 1)) {
+            mav = new ModelAndView("info");
+            mav.addObject("messnum", 2);
+            mav.addObject("msg", "Ваш минулий запит на редагування або створення ще не повністю перевірений");
+            mav.addObject("link", "/");
+            mav.addObject("text", "Натисніть, щоб вийти ➜");
+            return mav;
         }
+        for (DataFile dataFile: dataFileRepository.findAllByDataSetId(dataSet.getId())) {
+            if (editDataFileRequestRepository.existsByDataFileIdAndStatus(dataFile.getId(), 1)) {
+                mav = new ModelAndView("info");
+                mav.addObject("messnum", 2);
+                mav.addObject("msg", "Ваш минулий запит на редагування або створення ще не повністю перевірений");
+                mav.addObject("link", "/");
+                mav.addObject("text", "Натисніть, щоб вийти ➜");
+                return mav;
+            }
+        }
+        return null;
+    }
+
+    private void uploadFileToBox(int userId, LocalDate now, int dataSetId, BoxFolder folder, MultipartFile file) {
+        String link = "error";
+        String fileName = file.getOriginalFilename();
+
+        try (InputStream in = file.getInputStream()) {
+            BoxFile.Info newFileInfo = folder.uploadFile(in, fileName);
+            BoxFile newFile = new BoxFile(api, newFileInfo.getID());
+            BoxSharedLinkRequest sharedLinkRequest = new BoxSharedLinkRequest()
+                    .access(OPEN)
+                    .permissions(true, true);
+            BoxSharedLink sharedLink = newFile.createSharedLink(sharedLinkRequest);
+            link = sharedLink.getURL();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        AddDataFileRequest addDataFileRequest = new AddDataFileRequest();
+        addDataFileRequest.setCreatedAt(now);
+        addDataFileRequest.setLinkToFile(link);
+        addDataFileRequest.setName(fileName);
+        addDataFileRequest.setUserId(userId);
+        addDataFileRequest.setStatus(1);
+        addDataFileRequest.setDataSetId(dataSetId);
+
+        addDataFileRequestRepository.save(addDataFileRequest);
     }
 }

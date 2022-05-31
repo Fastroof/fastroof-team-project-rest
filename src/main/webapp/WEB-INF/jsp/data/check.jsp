@@ -32,7 +32,7 @@
 <%@include file="/WEB-INF/jspf/header.jspf"%>
 
 <main class="bg-white">
-    <h5>Запити на додавання даних</h5>
+    <h5 class="p-4 text-center">Запити на додавання даних</h5>
     <div class="album py-5 bg-light">
         <div class="container">
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
@@ -57,7 +57,7 @@
             </div>
         </div>
     </div>
-    <h5>Запити на редагування даних</h5>
+    <h5 class="p-4 text-center">Запити на редагування даних</h5>
     <div class="album py-5 bg-light">
         <div class="container">
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">

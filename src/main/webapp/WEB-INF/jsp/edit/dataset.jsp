@@ -124,8 +124,8 @@
                 '    <ul class="list-group" style="width: 100%;">' +
                 '        <li class="list-group-item list-group-item-action">' +
                 '            <label class="label-in">' +
-                '                <span>Оберіть файл ...</span>' +
-                '                <input id="file-in" name="fileIn" class="mt-1 form-control" age="new" type="file" required>'+
+                '                <span class="span-name">Оберіть файл ...</span>' +
+                '                <input id="file-in" age="new" name="fileIn" class="mt-1 form-control" type="file" required>'+
                 '            </label>' +
                 '        </li>' +
                 '    </ul>' +
@@ -143,13 +143,23 @@
                     alert("Файл завеликий! Максимум 10MB");
                     $(this).val("");
                 } else {
-                    $(this).parent().parent().removeClass("list-group-item-danger");
-                    $(this).parent().parent().removeClass("list-group-item-action");
-                    $(this).parent().parent().addClass("list-group-item-light");
+                    let names = [];
+                    $("span.span-name").each(function () {
+                        names.push($(this).text());
+                    });
                     const name = $(this).val().replace(/C:\\fakepath\\/i, '');
-                    $(this).parent().find("span").text(name);
-                    $(this).attr("age", "new");
-                    $(this).parent().find('input[name="oldFileLink"]').remove();
+                    if (jQuery.inArray(name, names) === -1) {
+                        $(this).parent().parent().removeClass("list-group-item-danger");
+                        $(this).parent().parent().removeClass("list-group-item-action");
+                        $(this).parent().parent().addClass("list-group-item-light");
+                        const name = $(this).val().replace(/C:\\fakepath\\/i, '');
+                        $(this).parent().find("span").text(name);
+                        $(this).attr("age", "new");
+                        $(this).parent().find('input[name="oldFileName"]').remove();
+                    } else {
+                        alert("Файл з таким іменем вже доданий");
+                        $(this).val("");
+                    }
                 }
             });
         }
@@ -157,11 +167,11 @@
         <c:forEach var="file" items="${files}">
         addFileDiv();
         var input = $('input[id*="file-in"]:last');
-        input.parent().find("span").text("<c:out value="${file.name}"/>" + " (<c:out value="${file.linkToFile}"/>)");
+        input.parent().find("span").text("<c:out value="${file.name}"/>");
         input.parent().parent().removeClass("list-group-item-action");
         input.parent().parent().addClass("list-group-item-light");
         input.attr("age", "old");
-        input.after('<input type="text" name="oldFileLink" style="display:none;" value="<c:out value="${file.linkToFile}"/>"/>');
+        input.after('<input type="text" name="oldFileName" style="display:none;" value="<c:out value="${file.name}"/>"/>');
         </c:forEach>
 
         $("#sbmt").on("click", function () {

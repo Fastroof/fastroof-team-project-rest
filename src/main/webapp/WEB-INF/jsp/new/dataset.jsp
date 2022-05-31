@@ -121,7 +121,7 @@
                 '    <ul class="list-group" style="width: 100%;">' +
                 '        <li class="list-group-item list-group-item-action">' +
                 '            <label class="label-in">' +
-                '                <span>Оберіть файл ...</span>' +
+                '                <span class="span-name">Оберіть файл ...</span>' +
                 '                <input id="file-in" name="fileIn" class="mt-1 form-control" type="file" required>'+
                 '            </label>' +
                 '        </li>' +
@@ -140,11 +140,25 @@
                     alert("Файл завеликий! Максимум 10MB");
                     $(this).val("");
                 } else {
-                    $(this).parent().parent().removeClass("list-group-item-danger");
-                    $(this).parent().parent().removeClass("list-group-item-action");
-                    $(this).parent().parent().addClass("list-group-item-light");
+                    console.info("Hi");
+                    let names = [];
+                    $("span.span-name").each(function () {
+                        names.push($(this).text());
+                    });
+                    console.info(names);
                     const name = $(this).val().replace(/C:\\fakepath\\/i, '');
-                    $(this).parent().find("span").text(name);
+                    console.info(name);
+                    if (jQuery.inArray(name, names) === -1) {
+                        console.info("Who");
+                        $(this).parent().parent().removeClass("list-group-item-danger");
+                        $(this).parent().parent().removeClass("list-group-item-action");
+                        $(this).parent().parent().addClass("list-group-item-light");
+                        $(this).parent().find("span").text(name);
+                    } else {
+                        console.info("Whoho");
+                        alert("Файл з таким іменем вже доданий");
+                        $(this).val("");
+                    }
                 }
             });
         }

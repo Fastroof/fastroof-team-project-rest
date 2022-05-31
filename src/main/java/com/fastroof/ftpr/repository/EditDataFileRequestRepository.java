@@ -10,8 +10,8 @@ import java.util.List;
 @Repository
 public interface EditDataFileRequestRepository extends CrudRepository<EditDataFileRequest, Integer> {
     @Transactional
-    void deleteAllByDataFileId(int datafileId);
-    boolean existsByDataFileId(int datafileId);
-
+    void deleteAllByDataFileId(int dataFileId);
+    boolean existsByDataFileId(int dataFileId);
+    boolean existsByDataFileIdAndStatus(int dataSetId, int status);
     List<EditDataFileRequest> findAllByStatus(int i);
 }
